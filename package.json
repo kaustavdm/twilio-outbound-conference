@@ -1,5 +1,5 @@
 {
-  "name": "airtable-outbound",
+  "name": "outbound-conference",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "twilio": "5.0.3",
-    "@twilio/runtime-handler": "2.0.3"
+    "@twilio/runtime-handler": "2.0.1"
   },
   "devDependencies": {
     "twilio-run": "^4.0.3"
