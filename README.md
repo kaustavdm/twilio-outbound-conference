@@ -4,7 +4,7 @@ This is a [Twilio Serverless](https://www.twilio.com/docs/serverless) applicatio
 
 Very soon, this will have an Airtable integration as well.
 
-**Status: In-Progress (NOT production ready)**
+**Status: In-Progress**
 
 ## How It Works
 
@@ -22,17 +22,22 @@ In this flow, both parties talk by receiving calls on their phones. Twilio first
         "ConferenceName": "Call between Tuvok and Spock"
     }'
     ```
-2. **Dial the Recipient**: Once the Agent presses any key, [`Gather`](https://www.twilio.com/docs/voice/twiml/gather) calls the action endpoint at [`dial-recipient.js`](functions/phone-to-phone/dial-recipient.js). This function dials the Recipient and adds them to the conference. It also continues the `<Gather />` flow by adding the agent to the conference.
-3. **Track Call Status**: The [`status.js`](functions/phone-to-phone/status.js) function handles status callback events, which can be used for logging or further processing.
+2. **Dial the Recipient**: Once the Agent presses any key, [`Gather`](https://www.twilio.com/docs/voice/twiml/gather) calls the action endpoint at [`dial-recipient.js`](functions/phone-to-phone/dial-recipient.protected.js). This function dials the Recipient and adds them to the conference. It also continues the `<Gather />` flow by adding the agent to the conference.
+3. **Track Call Status**: The [`status.js`](functions/phone-to-phone/status.protected.js) function handles status callback events, which can be used for logging or further processing.
 
 ## Deployment
 
 This application is designed to be deployed on Twilio's Serverless platform. Ensure that all required environment variables are configured before deployment.
 
+- Set up the [Twilio CLI](https://www.twilio.com/docs/twilio-cli/quickstart) and the [Twilio Serverless Toolkit](https://www.twilio.com/docs/labs/serverless-toolkit/getting-started#install-the-twilio-serverless-toolkit).
+- Set up a Twilio Phone Number from the console.
+- Copy `sample.env` to `.env` and edit values for the environment variables. You will find the values in your [Twilio Console](https://console.twilio.com/). If you are just deploying, only worry about the following variables:
+    - `CALLER_ID`: The number to identify as the caller in the outgoing call. Must be an active Twilio phone number registered with the same account.
+- Run `twilio serverless:deploy` or `npm run deploy`.
+
 ## Roadmap
 
 - [x] Make functions protected
-- [ ] Add detailed setup and deployment instruction
 - [ ] Allow recording
 - [ ] Implement authentication
 - [ ] Trigger call from Airtable
