@@ -9,7 +9,8 @@
   },
   "dependencies": {
     "twilio": "5.0.3",
-    "@twilio/runtime-handler": "2.0.1"
+    "@twilio/runtime-handler": "2.0.1",
+    "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
     "twilio-run": "^4.0.3"

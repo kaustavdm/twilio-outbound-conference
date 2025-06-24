@@ -1,4 +1,4 @@
-const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
 
 exports.handler = async function (context, event, callback) {
   const client = context.getTwilioClient();
@@ -45,6 +45,13 @@ exports.handler = async function (context, event, callback) {
     );
   }
 
+  if (!context.JWT_SECRET) {
+    return callback(
+      new Error("`JWT_SECRET` must be set in environment variable"),
+      null
+    );
+  }
+
   try {
     // Verify the OTP code
     const verificationCheck = await client.verify.v2
@@ -58,38 +65,37 @@ exports.handler = async function (context, event, callback) {
       return callback(new Error("Invalid or expired OTP code"), null);
     }
 
-    // Generate a unique token for the verified email
-    const token = crypto.randomBytes(32).toString("hex");
+    // Generate a secure JWT token for the verified email
     const timestamp = new Date().toISOString();
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
+
+    const payload = {
+      email: email,
+      verifiedAt: timestamp,
+      exp: Math.floor(expiresAt.getTime() / 1000), // JWT expects seconds, not milliseconds
+      iat: Math.floor(Date.now() / 1000),
+      iss: "outbound-conference-setup",
+      aud: "setup/phone",
+    };
+
+    const token = jwt.sign(payload, context.JWT_SECRET, {
+      algorithm: "HS256"
+    });
 
     // Save verified email and token to Twilio Sync
-    const syncDocument = await client.sync.v1
+    await client.sync.v1
       .services(context.SYNC_SERVICE_SID)
       .documents.create({
         uniqueName: `verified_email_${Buffer.from(email).toString("base64")}`,
         data: {
           email: email,
-          token: token,
           verifiedAt: timestamp,
-          status: "verified",
-        },
-      });
-
-    // Also create a token-to-email mapping for easy lookup
-    await client.sync.v1
-      .services(context.SYNC_SERVICE_SID)
-      .documents.create({
-        uniqueName: `token_${token}`,
-        data: {
-          email: email,
-          verifiedAt: timestamp,
-          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours from now
         },
       });
 
     return callback(null, {
       status: "success",
-      message: "Email verified successfully",
+      message: "Email verified successfully. Pass `data.token` to the next step to set up phone number.",
       data: {
         email: email,
         token: token,
@@ -118,9 +124,7 @@ exports.handler = async function (context, event, callback) {
           .update({
             data: {
               email: email,
-              token: token,
-              verifiedAt: timestamp,
-              status: "verified",
+              verifiedAt: timestamp
             },
           });
 
