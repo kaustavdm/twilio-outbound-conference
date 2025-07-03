@@ -9,15 +9,14 @@ exports.handler = async function (context, event, callback) {
 
   const conf = decodeURIComponent(event.ConferenceName);
   const callerType = event.CallerType || "Recipient";
-  const isRecipient = callerType === "Recipient";
 
   const encName = encodeURIComponent(conf);
 
   const twiml = new Twilio.twiml.VoiceResponse();
   twiml.dial().conference(
     {
-      startConferenceOnEnter: !isRecipient,
-      endConferenceOnExit: !isRecipient,
+      startConferenceOnEnter: true,
+      endConferenceOnExit: true,
       beep: false,
       statusCallback: `${baseUrl}/status?ConferenceName=${encName}&CallerType=${callerType}`,
       statusCallbackMethod: "POST",
