@@ -6,19 +6,19 @@ exports.handler = async function (context, event, callback) {
 
   // Run validations
   if (!email) {
-    return callback(new Error("Email is required"), null);
+    return callback({ message: "Email is required" }, null);
   }
 
   // Validate email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
-    return callback(new Error("Invalid email format"), null);
+    return callback({ message: "Invalid email format"}, null);
   }
 
   // Check if email is from @twilio.com domain
   if (!email.endsWith("@twilio.com")) {
     return callback(
-      new Error("Email must be from @twilio.com domain"),
+      { message: "Email must be from @twilio.com domain"}, 
       null
     );
   }
@@ -26,7 +26,7 @@ exports.handler = async function (context, event, callback) {
   // Check if Verify service SID is configured
   if (!context.VERIFY_SERVICE_SID) {
     return callback(
-      new Error("`VERIFY_SERVICE_SID` must be set in environment variable"),
+      { message: "`VERIFY_SERVICE_SID` must be set in environment variable" },
       null
     );
   }
@@ -53,6 +53,6 @@ exports.handler = async function (context, event, callback) {
     });
   } catch (error) {
     console.error("Error sending OTP:", error);
-    return callback(error, null);
+    return callback({ message: error.message, name: error.name }, null);
   }
 };
