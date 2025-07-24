@@ -5,7 +5,7 @@ exports.handler = async function (context, event, callback) {
 
   const { DOMAIN_NAME } = context;
 
-  const baseUrl = `https://${DOMAIN_NAME}/phone-to-phone`;
+  const baseUrl = `https://${DOMAIN_NAME}/call`;
 
   const conf = decodeURIComponent(event.ConferenceName);
   const callerType = event.CallerType || "Recipient";

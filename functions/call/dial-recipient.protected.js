@@ -18,7 +18,7 @@ exports.handler = async function (context, event, callback) {
     );
   }
 
-  const baseUrl = `https://${DOMAIN_NAME}/phone-to-phone`;
+  const baseUrl = `https://${DOMAIN_NAME}/call`;
 
   const encName = encodeURIComponent(conf);
 
