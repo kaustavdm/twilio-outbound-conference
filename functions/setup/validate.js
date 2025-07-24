@@ -1,3 +1,5 @@
+const jwt = require("jsonwebtoken");
+
 exports.handler = async function (context, event, callback) {
   const client = context.getTwilioClient();
 
@@ -49,6 +51,13 @@ exports.handler = async function (context, event, callback) {
   if (!context.SYNC_SERVICE_SID) {
     return callback(
       new Error("`SYNC_SERVICE_SID` must be set in environment variable"),
+      null
+    );
+  }
+
+  if (!context.JWT_SECRET) {
+    return callback(
+      new Error("`JWT_SECRET` must be set in environment variable"),
       null
     );
   }
@@ -140,6 +149,17 @@ exports.handler = async function (context, event, callback) {
       }
     }
 
+    // Generate JWT token with very long validity (10 years)
+    const jwtPayload = {
+      email: email,
+      phone: phone,
+      verifiedAt: timestamp,
+    };
+    
+    const jwtToken = jwt.sign(jwtPayload, context.JWT_SECRET, {
+      expiresIn: "10y", // 10 years validity
+    });
+
     return callback(null, {
       status: "success",
       message: "Email and phone verified successfully.",
@@ -147,6 +167,7 @@ exports.handler = async function (context, event, callback) {
         email: email,
         phone: phone,
         verifiedAt: timestamp,
+        token: jwtToken,
         verification: {
           email: {
             status: emailVerificationCheck.status,
