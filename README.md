@@ -56,32 +56,26 @@ curl -X POST 'https://{{domain}}/call/start' \
 -d '{"token": "JWT_TOKEN", "RecipientNumber": "+1234567890"}'
 ```
 
-## Deployment
+## Setup
 
 ### Prerequisites
 - [Twilio CLI](https://www.twilio.com/docs/twilio-cli/quickstart) + [Serverless Toolkit](https://www.twilio.com/docs/labs/serverless-toolkit/getting-started#install-the-twilio-serverless-toolkit)
 - Twilio Phone Number
 - Copy `sample.env` to `.env` with values from [Twilio Console](https://console.twilio.com/)
-- Setup a Twilio Verify service with Email and SMS channels. For email channel, create a Sendgrid email sender and an email template.
-- Setup a Twilio Sync Service
+- Setup a Twilio Verify service with [authentication channels](https://www.twilio.com/docs/verify/authentication-channels) for [Email](https://www.twilio.com/docs/verify/email) and [SMS](https://www.twilio.com/docs/verify/sms) channels. (See [`verify_email_tmpl.html`](verify_email_tmpl.html) for an example template). (Twilio Console -> Verify -> Services)
+- Setup a Twilio Sync Service (Twilio Console -> Sync -> Services)
+- Generate a strong JWT secret: `openssl rand -base64 32`
 
 ### Environment Variables
 - `CALLER_ID`: Twilio phone number for outgoing calls
 - `ALLOWED_EMAIL_DOMAINS`: Comma-separated list of allowed email domains (optional, leave empty to allow any domain)
 - `VERIFY_SERVICE_SID`: Twilio Verify Service SID
 - `SYNC_SERVICE_SID`: Twilio Sync Service SID  
-- `JWT_SECRET`: Strong secret key (32+ chars) for JWT signing
+- `JWT_SECRET`: Strong secret key (32+ chars) for JWT signing.
 
-### Quick Setup
+### Deploy
+
 ```bash
-# Create services
-twilio api:verify:v2:services:create --friendly-name "Outbound Conference Verification"
-twilio api:sync:v1:services:create --friendly-name "Outbound Conference User Data"
-
-# Generate JWT secret
-openssl rand -base64 32
-
-# Deploy
 twilio serverless:deploy
 ```
 
