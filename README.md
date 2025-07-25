@@ -13,7 +13,7 @@ A [Twilio Serverless](https://www.twilio.com/docs/serverless) application for ma
 - Dual email/phone verification with 10-year JWT tokens
 - Phone uniqueness enforcement per email
 - Automatic agent detection from JWT
-- Twilio domain restriction (@twilio.com emails only)
+- Configurable email domain restrictions (set via `ALLOWED_EMAIL_DOMAINS`)
 
 ## API Endpoints
 
@@ -21,12 +21,12 @@ A [Twilio Serverless](https://www.twilio.com/docs/serverless) application for ma
 **POST** `/setup/init` - Send OTPs to email and phone
 
 **Parameters:**
-- `email` (required): @twilio.com email address
+- `email` (required): Email address from allowed domains (if configured)
 - `phone` (required): Phone number for agent calls
 
 ```bash
 curl -X POST 'https://{{domain}}/setup/init' \
--d 'email=user@twilio.com&phone=+19087654321'
+-d 'email=user@alloweddomain.com&phone=+19087654321'
 ```
 
 ### Setup Validation
@@ -37,7 +37,7 @@ curl -X POST 'https://{{domain}}/setup/init' \
 
 ```bash
 curl -X POST 'https://{{domain}}/setup/validate' \
--d 'email=user@twilio.com&email_code=123456&phone=+19087654321&phone_code=789012'
+-d 'email=user@alloweddomain.com&email_code=123456&phone=+19087654321&phone_code=789012'
 ```
 
 **Returns:** JWT token in `data.token` field
@@ -62,9 +62,12 @@ curl -X POST 'https://{{domain}}/call/start' \
 - [Twilio CLI](https://www.twilio.com/docs/twilio-cli/quickstart) + [Serverless Toolkit](https://www.twilio.com/docs/labs/serverless-toolkit/getting-started#install-the-twilio-serverless-toolkit)
 - Twilio Phone Number
 - Copy `sample.env` to `.env` with values from [Twilio Console](https://console.twilio.com/)
+- Setup a Twilio Verify service with Email and SMS channels. For email channel, create a Sendgrid email sender and an email template.
+- Setup a Twilio Sync Service
 
 ### Environment Variables
 - `CALLER_ID`: Twilio phone number for outgoing calls
+- `ALLOWED_EMAIL_DOMAINS`: Comma-separated list of allowed email domains (optional, leave empty to allow any domain)
 - `VERIFY_SERVICE_SID`: Twilio Verify Service SID
 - `SYNC_SERVICE_SID`: Twilio Sync Service SID  
 - `JWT_SECRET`: Strong secret key (32+ chars) for JWT signing

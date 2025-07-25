@@ -1,3 +1,6 @@
+const assets = Runtime.getAssets();
+const { validateEmail } = require(assets['/lib/validate_email.js'].path);
+
 exports.handler = async function (context, event, callback) {
   const client = context.getTwilioClient();
 
@@ -14,18 +17,10 @@ exports.handler = async function (context, event, callback) {
     return callback(new Error("Phone number is required"), null);
   }
 
-  // Validate email format
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return callback(new Error("Invalid email format"), null);
-  }
-
-  // Check if email is from @twilio.com domain
-  if (!email.endsWith("@twilio.com")) {
-    return callback(
-      new Error("Email must be from @twilio.com domain"),
-      null
-    );
+  // Validate email using the validateEmail function
+  const emailValidation = validateEmail(email, context.ALLOWED_EMAIL_DOMAINS);
+  if (!emailValidation.isValid) {
+    return callback(new Error(emailValidation.message), null);
   }
 
   // Check required environment variables
