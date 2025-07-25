@@ -1,14 +1,14 @@
 exports.handler = async function (context, event, callback) {
-  if (!event.ConferenceName) {
-    return callback(new Error("`ConferenceName` is required"), null);
+  if (!event.confName) {
+    return callback(new Error("`confName` is required"), null);
   }
 
   const { DOMAIN_NAME } = context;
 
   const baseUrl = `https://${DOMAIN_NAME}/call`;
 
-  const conf = decodeURIComponent(event.ConferenceName);
-  const callerType = event.CallerType || "Recipient";
+  const conf = decodeURIComponent(event.confName);
+  const callerType = event.callerType || "Recipient";
 
   const encName = encodeURIComponent(conf);
 
@@ -18,7 +18,7 @@ exports.handler = async function (context, event, callback) {
       startConferenceOnEnter: true,
       endConferenceOnExit: true,
       beep: false,
-      statusCallback: `${baseUrl}/status?ConferenceName=${encName}&CallerType=${callerType}`,
+      statusCallback: `${baseUrl}/status?confName=${encName}&callerType=${callerType}`,
       statusCallbackMethod: "POST",
       statusCallbackEvent: ["start", "end", "join", "leave"],
     },

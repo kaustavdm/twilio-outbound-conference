@@ -1,18 +1,17 @@
 const jwt = require("jsonwebtoken");
-const Twilio = require("twilio");
 
 exports.handler = async function (context, event, callback) {
   const client = context.getTwilioClient();
 
-  // Pass token, RecipientNumber, ConferenceName to the function
+  // Pass token, to, confName to the function
   // token: JWT token containing verified email and phone. We will decode this to get the agent's phone number
   const token = event.token;
-  // RecipientNumber: The number of the customer / lead / recipient. This is the number we will dial after the agent picks up and confirms.
-  const recipientNumber = decodeURIComponent(event.RecipientNumber);
-  // ConferenceName: The name of the conference. This is used to identify the conference for the call.
+  // to: The number of the customer / lead / recipient. This is the number we will dial after the agent picks up and confirms.
+  const recipientNumber = decodeURIComponent(event.to);
+  // confName: The name of the conference. This is used to identify the conference for the call.
   // If not provided, we will create a unique conference name using the current timestamp.
   const conferenceName =
-    decodeURIComponent(event.ConferenceName) ||
+    decodeURIComponent(event.confName) ||
     `conf_phone_to_phone_${Date.now()}`;
 
   // Decode JWT token to get agent's phone number
@@ -58,8 +57,8 @@ exports.handler = async function (context, event, callback) {
     );
   }
 
-  if (!event.RecipientNumber) {
-    return callback(new Error("`RecipientNumber` is required"), null);
+  if (!event.to) {
+    return callback(new Error("`to` is required"), null);
   }
 
   // Check for conference name or set a default one
@@ -70,7 +69,7 @@ exports.handler = async function (context, event, callback) {
   startTwiml.say("Hello.");
   startTwiml
     .gather({
-      action: `${baseUrl}/dial-recipient?ConferenceName=${encName}&RecipientNumber=${encRecipient}`,
+      action: `${baseUrl}/dial-recipient?confName=${encName}&to=${encRecipient}`,
       actionOnEmptyResult: true,
       method: "POST",
       finishOnKey: "",
@@ -89,7 +88,7 @@ exports.handler = async function (context, event, callback) {
       from: CALLER_ID,
       method: "POST",
       twiml: startTwiml,
-      statusCallback: `${baseUrl}/status?ConferenceName=${encName}&CallerType=Agent`,
+      statusCallback: `${baseUrl}/status?confName=${encName}&callerType=Agent`,
       statusCallbackMethod: "POST",
       statusCallbackEvent: ["initiated", "ringing", "answered", "completed"],
     });

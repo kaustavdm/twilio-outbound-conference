@@ -2,18 +2,18 @@ exports.handler = async function (context, event, callback) {
   const client = context.getTwilioClient();
   const { CALLER_ID, DOMAIN_NAME } = context;
 
-  const conf = decodeURIComponent(event.ConferenceName);
-  const recipient = decodeURIComponent(event.RecipientNumber);
+  const conf = decodeURIComponent(event.confName);
+  const recipient = decodeURIComponent(event.to);
 
-  if (!event.ConferenceName) {
+  if (!event.confName) {
     return callback(
-      new Error("`ConferenceName` is required and must not be empty"),
+      new Error("`confName` is required and must not be empty"),
       null
     );
   }
-  if (!event.RecipientNumber) {
+  if (!event.to) {
     return callback(
-      new Error("`RecipientNumber` is required and must be a phone number"),
+      new Error("`to` is required and must be a phone number"),
       null
     );
   }
@@ -27,8 +27,8 @@ exports.handler = async function (context, event, callback) {
       to: recipient,
       from: CALLER_ID,
       method: "POST",
-      url: `${baseUrl}/conference-twiml?ConferenceName=${encName}&CallerType=Recipient`,
-      statusCallback: `${baseUrl}/status?ConferenceName=${encName}&CallerType=Recipient`,
+      url: `${baseUrl}/conference-twiml?confName=${encName}&callerType=Recipient`,
+      statusCallback: `${baseUrl}/status?confName=${encName}&callerType=Recipient`,
       statusCallbackMethod: "POST",
       statusCallbackEvent: ["initiated", "ringing", "answered", "completed"],
     });
@@ -38,7 +38,7 @@ exports.handler = async function (context, event, callback) {
       {
         method: "POST",
       },
-      `${baseUrl}/conference-twiml?ConferenceName=${encName}&CallerType=Agent`
+      `${baseUrl}/conference-twiml?confName=${encName}&callerType=Agent`
     );
 
     return callback(null, response);

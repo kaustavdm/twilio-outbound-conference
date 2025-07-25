@@ -4,7 +4,7 @@ A [Twilio Serverless](https://www.twilio.com/docs/serverless) application for ma
 
 ## Workflow
 
-1. **Setup**: Agents verify email (@twilio.com) and phone via Twilio Verify OTP
+1. **Setup**: Agents verify email and phone via Twilio Verify OTP
 2. **Call**: Use JWT token to initiate authenticated calls
 
 ### Key Features
@@ -56,13 +56,13 @@ Source: [`call/start.js`](call/start.js)
 
 **Parameters:**
 - `token` (required): JWT from setup validation
-- `RecipientNumber` (required): Customer phone number
-- `ConferenceName` (optional): Conference identifier
+- `to` (required): Customer phone number
+- `confName` (optional): Conference identifier
 
 ```bash
 curl -X POST 'https://{{domain}}/call/start' \
 -H 'Content-Type: application/json' \
--d '{"token": "JWT_TOKEN", "RecipientNumber": "+1234567890"}'
+-d '{"token": "JWT_TOKEN", "to": "+1234567890", "confName": "Call with Owl from Twilio"}'
 ```
 
 ## Setup
